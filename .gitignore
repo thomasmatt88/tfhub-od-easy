@@ -1,3 +1,3 @@
 venv
 .DS_Store
-protos/__pycache__
+object_detection/*/__pycache__
