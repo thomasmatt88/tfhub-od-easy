@@ -1,12 +1,5 @@
-# Run inference on the TF-Hub module.
 import tensorflow as tf
-import tensorflow_hub as hub
-import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
-import ssl
-
-ssl._create_default_https_context = ssl._create_unverified_context
 
 # object_detection.utils.label_map_util
 from object_detection.utils.label_map_util import create_category_index, _validate_label_map, load_labelmap, convert_label_map_to_categories, create_categories_from_labelmap, create_category_index_from_labelmap
@@ -17,63 +10,51 @@ from object_detection.utils.ops import reframe_box_masks_to_image_masks
 # object_detection.utils.visualization_utils
 from object_detection.utils.visualization_utils import STANDARD_COLORS, draw_keypoints_on_image, draw_keypoints_on_image_array, draw_bounding_box_on_image, draw_bounding_box_on_image_array, draw_mask_on_image_array, visualize_boxes_and_labels_on_image_array, _get_multiplier_for_color_randomness
 
-# List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = './data/mscoco_label_map.pbtxt'
-category_index = create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
+def infer_image(image_np, model):
+    """accepts and returns image as numpy array"""
 
-# Print Tensorflow version
-print(tf.__version__)
-image_np = np.array(Image.open('./data/kite.jpg'))
-image = np.asarray(image_np)
-# The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
-input_tensor = tf.convert_to_tensor(image)
-# The model expects a batch of images, so add an axis with `tf.newaxis`.
-input_tensor = input_tensor[tf.newaxis,...]
+    # List of the strings that is used to add correct label for each box.
+    PATH_TO_LABELS = './data/mscoco_label_map.pbtxt'
+    category_index = create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 
-#model = hub.load("https://tfhub.dev/tensorflow/faster_rcnn/inception_resnet_v2_640x640/1")
-model = hub.load("https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2")
-#model = hub.load("https://tfhub.dev/tensorflow/efficientdet/d7/1")
-#model = hub.load("https://tfhub.dev/tensorflow/retinanet/resnet50_v1_fpn_640x640/1")
-#model = hub.load("https://tfhub.dev/tensorflow/centernet/resnet50v2_512x512/1")
-#model = hub.load("https://tfhub.dev/tensorflow/centernet/hourglass_1024x1024_kpts/1")
+    image = np.asarray(image_np)
+    # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
+    input_tensor = tf.convert_to_tensor(image)
+    # The model expects a batch of images, so add an axis with `tf.newaxis`.
+    input_tensor = input_tensor[tf.newaxis,...]
 
+    # Run inference
+    model_fn = model.signatures['serving_default']
+    output_dict = model_fn(input_tensor)
 
-# Check the model's input signature
-print("input signature", model.signatures['serving_default'].inputs[0])
-# Tensor("input_tensor:0", shape=(1, None, None, 3), dtype=uint8)
+    # All outputs are batches tensors.
+    # Convert to numpy arrays, and take index [0] to remove the batch dimension.
+    # We're only interested in the first num_detections.
+    num_detections = int(output_dict.pop('num_detections'))
+    output_dict = {key:value[0, :num_detections].numpy() 
+                    for key,value in output_dict.items()}
+    output_dict['num_detections'] = num_detections
 
-# Run inference
-model_fn = model.signatures['serving_default']
-output_dict = model_fn(input_tensor)
+    # detection_classes should be ints.
+    output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
 
-# All outputs are batches tensors.
-# Convert to numpy arrays, and take index [0] to remove the batch dimension.
-# We're only interested in the first num_detections.
-num_detections = int(output_dict.pop('num_detections'))
-output_dict = {key:value[0, :num_detections].numpy() 
-                for key,value in output_dict.items()}
-output_dict['num_detections'] = num_detections
+    # Handle models with masks:
+    if 'detection_masks' in output_dict:
+        # Reframe the the bbox mask to the image size.
+        detection_masks_reframed = reframe_box_masks_to_image_masks(output_dict['detection_masks'], output_dict['detection_boxes'],image.shape[0], image.shape[1])      
+        detection_masks_reframed = tf.cast(detection_masks_reframed > 0.5,
+                                            tf.uint8)
+        output_dict['detection_masks_reframed'] = detection_masks_reframed.numpy()
 
-# detection_classes should be ints.
-output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
+    # Visualization of the results of a detection.
+    visualize_boxes_and_labels_on_image_array(
+        image_np,
+        output_dict['detection_boxes'],
+        output_dict['detection_classes'],
+        output_dict['detection_scores'],
+        category_index,
+        instance_masks=output_dict.get('detection_masks_reframed', None),
+        use_normalized_coordinates=True,
+        line_thickness=8)
 
-# Handle models with masks:
-if 'detection_masks' in output_dict:
-    # Reframe the the bbox mask to the image size.
-    detection_masks_reframed = reframe_box_masks_to_image_masks(output_dict['detection_masks'], output_dict['detection_boxes'],image.shape[0], image.shape[1])      
-    detection_masks_reframed = tf.cast(detection_masks_reframed > 0.5,
-                                        tf.uint8)
-    output_dict['detection_masks_reframed'] = detection_masks_reframed.numpy()
-
-# Visualization of the results of a detection.
-visualize_boxes_and_labels_on_image_array(
-    image_np,
-    output_dict['detection_boxes'],
-    output_dict['detection_classes'],
-    output_dict['detection_scores'],
-    category_index,
-    instance_masks=output_dict.get('detection_masks_reframed', None),
-    use_normalized_coordinates=True,
-    line_thickness=8)
-
-Image.fromarray(image_np).save('detect-test.jpg')
+    return image_np
