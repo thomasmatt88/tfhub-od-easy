@@ -2,3 +2,7 @@ venv
 .DS_Store
 object_detection/*/__pycache__
 __pycache__
+local_readme.txt
+val2017.zip
+annotations_trainval2017.zip
+coco

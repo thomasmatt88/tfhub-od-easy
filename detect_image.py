@@ -17,6 +17,10 @@ flags.DEFINE_string('image_output', '.detect-test.jpg', 'path to image')
 def main(argv):
     image_np = np.array(Image.open(FLAGS.image_input))
 
+    # handle grayscale image
+    if image_np.ndim == 2:
+        image_np = np.repeat(image_np[..., np.newaxis], 3, axis=2)
+
     ssl._create_default_https_context = ssl._create_unverified_context
     model = hub.load(FLAGS.url)
 
