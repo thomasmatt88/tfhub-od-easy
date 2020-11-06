@@ -25,7 +25,8 @@ def read_class_names(class_file_name):
     return names
 
 def main(_argv):
-    # List of the strings that is used to add correct label for each box.
+    # small discrepencies in index of mscoco_label_map.pbtxt and coco.names
+    # order of labels are the same but not the indices
     PATH_TO_LABELS = './data/mscoco_label_map.pbtxt'
     CATEGORY_INDEX = create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
     CLASSES = read_class_names('./data/classes/coco.names')
@@ -44,6 +45,7 @@ def main(_argv):
     # Build Model
     ssl._create_default_https_context = ssl._create_unverified_context
     model = hub.load('https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2')
+    #model = hub.load('https://tfhub.dev/tensorflow/efficientdet/d7/1')
     infer = model.signatures['serving_default']
 
     num_lines = sum(1 for line in open("./data/dataset/val2017.txt"))
@@ -105,23 +107,22 @@ def main(_argv):
             valid_detections = selected_scores.numpy().shape[0]
 
             with open(predict_result_path, 'w') as f:
-                image_w, image_h, _ = image.shape # numpy dimensions
+                image_h, image_w, _ = image.shape # numpy dimensions
                 for i in range(int(valid_detections)):
                     if int(selected_classes[i]) < 0 or int(selected_classes[i]) > 80: continue # only include 80 and below
                 
                     # normalized coordinates
                     ymin, xmin, ymax, xmax = selected_boxes[i].numpy()
-                    # unnormalize
+                    # rescale
                     ymin = ymin*image_h
                     ymax = ymax*image_h
                     xmin = xmin*image_w
-                    xmax = xmax*image_h
+                    xmax = xmax*image_w
 
                     score = selected_scores[i]
                     class_ind = int(selected_classes[i])
                     class_name = CATEGORY_INDEX[class_ind]['name']
                     score = '%.4f' % score
-                    #ymin, xmin, ymax, xmax = list(map(str, coor))
                     bbox_mess = ' '.join([class_name, score, str(xmin), str(ymin), str(xmax), str(ymax)]) + '\n'
                     f.write(bbox_mess)
                     print('\t' + str(bbox_mess).strip())
