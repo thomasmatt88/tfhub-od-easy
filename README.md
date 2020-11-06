@@ -5,7 +5,14 @@
 [TensorFlow Hub](https://tfhub.dev/) lets you search and discover hundreds of trained, ready-to-deploy machine learning models in one place. 
 This repo offers a minimal codebase to deploy **TF2 Image Object Detection** models from TensorFlow Hub for image object detection, 
 video object detection, webcam object detection, and evaluation on the MS COCO 2017 validation dataset (5000 images). Simply replace the *--url* argument 
-in any of the demos below with the url of the model of interest from https://tfhub.dev/s?module-type=image-object-detection&tf-version=tf2.
+in any of the demos below with the url of the model of interest from https://tfhub.dev/s?module-type=image-object-detection&tf-version=tf2.  
+  
+Example urls:
+* https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2
+* https://tfhub.dev/tensorflow/centernet/hourglass_512x512_kpts/1
+* https://tfhub.dev/tensorflow/efficientdet/d3/1
+* etc.
+
 
 ```
 pip install -r requirements.txt
