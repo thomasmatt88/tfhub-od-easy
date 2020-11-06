@@ -17,8 +17,9 @@ Example urls:
 ```
 pip install -r requirements.txt
 ```
+## Demos
 
-### Detect Image Demo
+### Detect Image
 ``` bash
 # detect image with SSD Mobilenet v2 
 python detect_image.py --url https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2 --image_input ./data/kite.jpg
@@ -27,17 +28,27 @@ python detect_image.py --url https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2 --i
 python detect_image.py --url https://tfhub.dev/tensorflow/efficientdet/d7/1 --image_input ./data/kite.jpg
 ```
 
-### Detect Video Demo
+### Detect Video
 ``` bash
 # detect video with SSD Mobilenet v2 
 python detect_video.py --url https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2 --video ./data/video.mp4 --output ./detect-test.mp4
 ```
 
-### Detect Webcam Demo
+### Detect Webcam
 ``` bash
 # detect webcam with SSD Mobilenet v2 
 python detect_video.py --url https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2 --video 0
 ```
+### Evaluate on MS COCO 2017 Validation Dataset
+```bash
+./scripts/get_coco_dataset_2017.sh
+python evaluate.py --url https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2
+cd mAP/extra
+python remove_space.py # enter 'y' for everything
+cd ..
+python main.py # expect mAP of 29.70% for https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2
+```
+
 
 ### Acknowledgements
 This project was inspired by
