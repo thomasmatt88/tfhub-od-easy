@@ -11,7 +11,7 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string('url', 'https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2', 'hub url for model or path to model')
 flags.DEFINE_string('image_input', './data/kite.jpg', 'path to image')
-flags.DEFINE_string('image_output', '.detect-test.jpg', 'path to image')
+flags.DEFINE_string('image_output', './detect-test.jpg', 'path to image')
 
 
 def main(argv):
