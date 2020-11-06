@@ -12,6 +12,7 @@ import ssl
 # object_detection.utils.label_map_util
 from object_detection.utils.label_map_util import create_category_index_from_labelmap
 
+flags.DEFINE_string('url', 'https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2', 'hub url for model or path to model')
 flags.DEFINE_string('annotation_path', "./data/dataset/val2017.txt", 'annotation path')
 flags.DEFINE_string('write_image_path', "./data/detection/", 'write image path')
 flags.DEFINE_float('iou', 0.5, 'iou threshold')
@@ -26,26 +27,22 @@ def read_class_names(class_file_name):
 
 def main(_argv):
     # small discrepencies in index of mscoco_label_map.pbtxt and coco.names
-    # order of labels are the same but not the indices
-    PATH_TO_LABELS = './data/mscoco_label_map.pbtxt'
+    # order of labels are the same but the indices don't exactly match
+    PATH_TO_LABELS = './data/mscoco_label_map.pbtxt' # for predictions
     CATEGORY_INDEX = create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
-    CLASSES = read_class_names('./data/classes/coco.names')
+    CLASSES = read_class_names('./data/classes/coco.names') # for ground truth
 
     predicted_dir_path = './mAP/predicted'
     ground_truth_dir_path = './mAP/ground-truth'
-    #detected_image_path = "./data/detection/"
     if os.path.exists(predicted_dir_path): shutil.rmtree(predicted_dir_path)
     if os.path.exists(ground_truth_dir_path): shutil.rmtree(ground_truth_dir_path)
-    #if os.path.exists(detected_image_path): shutil.rmtree(detected_image_path)
 
     os.mkdir(predicted_dir_path)
     os.mkdir(ground_truth_dir_path)
-    #os.mkdir(detected_image_path)
 
     # Build Model
     ssl._create_default_https_context = ssl._create_unverified_context
-    model = hub.load('https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2')
-    #model = hub.load('https://tfhub.dev/tensorflow/efficientdet/d7/1')
+    model = hub.load(FLAGS.url)
     infer = model.signatures['serving_default']
 
     num_lines = sum(1 for line in open("./data/dataset/val2017.txt"))
@@ -109,7 +106,7 @@ def main(_argv):
             with open(predict_result_path, 'w') as f:
                 image_h, image_w, _ = image.shape # numpy dimensions
                 for i in range(int(valid_detections)):
-                    if int(selected_classes[i]) < 0 or int(selected_classes[i]) > 80: continue # only include 80 and below
+                    #if int(selected_classes[i]) < 0 or int(selected_classes[i]) > 80: continue # only include 80 and below
                 
                     # normalized coordinates
                     ymin, xmin, ymax, xmax = selected_boxes[i].numpy()
