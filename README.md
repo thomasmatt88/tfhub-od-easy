@@ -13,11 +13,11 @@ Example urls:
 * https://tfhub.dev/tensorflow/efficientdet/d3/1
 * etc.
 
-
+## Demos
 ```
 pip install -r requirements.txt
 ```
-## Demos
+* https://www.tensorflow.org/install
 
 ### Detect Image
 ``` bash
