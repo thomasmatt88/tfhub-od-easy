@@ -10,7 +10,26 @@ from object_detection.utils.ops import reframe_box_masks_to_image_masks
 # object_detection.utils.visualization_utils
 from object_detection.utils.visualization_utils import STANDARD_COLORS, draw_keypoints_on_image, draw_keypoints_on_image_array, draw_bounding_box_on_image, draw_bounding_box_on_image_array, draw_mask_on_image_array, visualize_boxes_and_labels_on_image_array, _get_multiplier_for_color_randomness
 
-def infer_image(image_np, model):
+COCO17_HUMAN_POSE_KEYPOINTS = [(0, 1),
+ (0, 2),
+ (1, 3),
+ (2, 4),
+ (0, 5),
+ (0, 6),
+ (5, 7),
+ (7, 9),
+ (6, 8),
+ (8, 10),
+ (5, 6),
+ (5, 11),
+ (6, 12),
+ (11, 12),
+ (11, 13),
+ (13, 15),
+ (12, 14),
+ (14, 16)]
+
+def infer_image(image_np, model, show_keypoints):
     """accepts and returns image as numpy array"""
 
     # List of the strings that is used to add correct label for each box.
@@ -39,12 +58,19 @@ def infer_image(image_np, model):
     output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
 
     # Handle models with masks:
+    # output of Mask R-CNN allows instance segmentation
     if 'detection_masks' in output_dict:
         # Reframe the the bbox mask to the image size.
         detection_masks_reframed = reframe_box_masks_to_image_masks(output_dict['detection_masks'], output_dict['detection_boxes'],image.shape[0], image.shape[1])      
         detection_masks_reframed = tf.cast(detection_masks_reframed > 0.5,
                                             tf.uint8)
         output_dict['detection_masks_reframed'] = detection_masks_reframed.numpy()
+    
+    # Use keypoints if available in detections
+    keypoints, keypoint_scores = None, None
+    if 'detection_keypoints' in output_dict and show_keypoints:
+        keypoints = output_dict['detection_keypoints']
+        keypoint_scores = output_dict['detection_keypoint_scores']
 
     # Visualization of the results of a detection.
     visualize_boxes_and_labels_on_image_array(
@@ -55,6 +81,11 @@ def infer_image(image_np, model):
         category_index,
         instance_masks=output_dict.get('detection_masks_reframed', None),
         use_normalized_coordinates=True,
-        line_thickness=8)
+        line_thickness=8,
+        max_boxes_to_draw=200,
+        min_score_thresh=0.30,
+        keypoints=keypoints,
+        keypoint_scores=keypoint_scores,
+        keypoint_edges=COCO17_HUMAN_POSE_KEYPOINTS)
 
     return image_np
