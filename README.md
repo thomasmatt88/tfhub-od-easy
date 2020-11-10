@@ -54,7 +54,18 @@ python remove_space.py # enter 'y' for everything
 cd ..
 python main.py # expect mAP of 29.70% for https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2
 ```
-
+### Save Model
+``` bash
+# save SSD Mobilenet v2 to saved_models
+python save_model.py --url https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2
+```
+Note:
+* This specific model (SSD Mobilenet v2) has already been saved to the repo by default.
+* These models are not fine-tunable. If you want to save fine-tunable models, you can do so manually from https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md
+### Detect Image From Saved Model
+``` bash
+python detect_image.py --url ./saved_models/ssd_mobilenet_v2_2
+```
 
 ### Acknowledgements
 This project was inspired by
