@@ -14,10 +14,12 @@ Example urls:
 * etc.
 
 ## Demos
+
+Before attempting the commands below make sure that your system meets the requirements listed in https://www.tensorflow.org/install. Namely that Python version is between 3.5 - 3.8.
 ```
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
-* https://www.tensorflow.org/install
 
 ### Detect Image
 ``` bash
@@ -27,6 +29,10 @@ python detect_image.py --url https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2 --i
 # detect image with EfficientDet-d7
 python detect_image.py --url https://tfhub.dev/tensorflow/efficientdet/d7/1 --image_input ./data/kite.jpg
 ```
+#### Output
+
+##### SSD Mobilenet v2
+<p align="center"><img src="detect-test.jpg" width="640"\></p>
 
 ### Detect Video
 ``` bash
