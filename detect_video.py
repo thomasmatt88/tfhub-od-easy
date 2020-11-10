@@ -45,20 +45,24 @@ def main(argv):
     while(True):
         # Capture frame-by-frame
         ret, frame = vid.read()
-        image_np = frame
-        
-        # infer frame
-        start_time = time.time()
-        result = infer_image(image_np, model, FLAGS.show_keypoints)
-        fps = 1.0 / (time.time() - start_time)
-        print("FPS: %.2f" % fps)
+        if frame is not None:
+            image_np = frame
+            
+            # infer frame
+            start_time = time.time()
+            result = infer_image(image_np, model, FLAGS.show_keypoints)
+            fps = 1.0 / (time.time() - start_time)
+            print("FPS: %.2f" % fps)
 
-        # Display the resulting frame
-        if not FLAGS.dont_show:
-            cv2.imshow("result", result)
-        # Save the resulting frame
-        if FLAGS.output:
-            out.write(result)
+            # Display the resulting frame
+            if not FLAGS.dont_show:
+                cv2.imshow("result", result)
+            # Save the resulting frame
+            if FLAGS.output:
+                out.write(result)
+        else:
+            print('Video has ended.')
+            break
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
