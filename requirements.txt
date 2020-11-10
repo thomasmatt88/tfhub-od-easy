@@ -39,5 +39,6 @@ tensorflow-hub==0.10.0
 termcolor==1.1.0
 urllib3==1.25.11
 Werkzeug==1.0.1
+wget==3.2
 wrapt==1.12.1
 zipp==3.4.0
