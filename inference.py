@@ -82,8 +82,8 @@ def infer_image(image_np, model, show_keypoints):
         instance_masks=output_dict.get('detection_masks_reframed', None),
         use_normalized_coordinates=True,
         line_thickness=8,
-        max_boxes_to_draw=200,
-        min_score_thresh=0.30,
+        max_boxes_to_draw=20,
+        min_score_thresh=0.5,
         keypoints=keypoints,
         keypoint_scores=keypoint_scores,
         keypoint_edges=COCO17_HUMAN_POSE_KEYPOINTS)
