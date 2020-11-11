@@ -67,8 +67,13 @@ Note:
 python detect_image.py --url ./saved_models/ssd_mobilenet_v2_2
 ```
 
+### TODO
+* [ ] TensorFlow Lite Support
+* [ ] Training/Fine-tuning support
+
 ### Acknowledgements
 This project was inspired by
 * [Yolov4 tf2](https://github.com/hunglc007/tensorflow-yolov4-tflite)
 * [Yolov4 tf2 with webcam detection](https://github.com/theAIGuysCode/tensorflow-yolov4-tflite)
 * [Object Detection API Demo](https://github.com/tensorflow/models/blob/master/research/object_detection/colab_tutorials/object_detection_tutorial.ipynb)
+* [TensorFlow 2 Object Detection API tutorial](https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/index.html)
