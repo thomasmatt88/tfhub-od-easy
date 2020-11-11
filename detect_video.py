@@ -19,6 +19,7 @@ flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_boolean('show_keypoints', False, 'dont show keypoints by default')
+flags.DEFINE_string('class_labels', './data/mscoco_label_map.pbtxt', 'path to class labels')
 
 def main(argv):
     ssl._create_default_https_context = ssl._create_unverified_context
@@ -50,7 +51,7 @@ def main(argv):
             
             # infer frame
             start_time = time.time()
-            result = infer_image(image_np, model, FLAGS.show_keypoints)
+            result = infer_image(image_np, model, FLAGS.show_keypoints, FLAGS.class_labels)
             fps = 1.0 / (time.time() - start_time)
             print("FPS: %.2f" % fps)
 

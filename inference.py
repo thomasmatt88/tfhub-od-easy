@@ -29,11 +29,11 @@ COCO17_HUMAN_POSE_KEYPOINTS = [(0, 1),
  (12, 14),
  (14, 16)]
 
-def infer_image(image_np, model, show_keypoints):
+def infer_image(image_np, model, show_keypoints = False, path_to_labels = './data/mscoco_label_map.pbtxt'):
     """accepts and returns image as numpy array"""
 
     # List of the strings that is used to add correct label for each box.
-    PATH_TO_LABELS = './data/mscoco_label_map.pbtxt'
+    PATH_TO_LABELS = path_to_labels
     category_index = create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 
     image = np.asarray(image_np)

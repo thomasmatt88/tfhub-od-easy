@@ -16,6 +16,7 @@ flags.DEFINE_string('url', 'https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2', 'h
 flags.DEFINE_string('image_input', './data/kite.jpg', 'path to image')
 flags.DEFINE_string('image_output', './detect-test.jpg', 'path to image')
 flags.DEFINE_boolean('show_keypoints', False, 'dont show keypoints by default')
+flags.DEFINE_string('class_labels', './data/mscoco_label_map.pbtxt', 'path to class labels')
 
 def main(argv):
     image_np = np.array(Image.open(FLAGS.image_input))
@@ -32,7 +33,7 @@ def main(argv):
     # Tensor("input_tensor:0", shape=(1, None, None, 3), dtype=uint8)
 
     # Run inference
-    image_np = infer_image(image_np, model, FLAGS.show_keypoints)
+    image_np = infer_image(image_np, model, FLAGS.show_keypoints, FLAGS.class_labels)
 
     Image.fromarray(image_np).save(FLAGS.image_output)
 
